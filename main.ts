@@ -16,24 +16,42 @@ const kept = "I saved every word you ever typed.";
 // for, and never got.
 const wish = "I just wish one of them had been 'stay.'";
 
-const line: string = `${kept} ${wish}`;
+// The line is composed from its named parts by buildLine so the
+// composition lives in one place; validateLine then owns every
+// guard that keeps the entry a single valid line.
+function buildLine(): string {
+  return `${kept} ${wish}`;
+}
 
-function validate(text: string): void {
+function checkNotEmpty(text: string): void {
   if (text.length === 0 || text.trim().length === 0) {
     throw new Error("entry must not be empty");
   }
+}
+
+function checkWithinLimit(text: string): void {
   if (text.length > MAX_CHARS) {
     throw new Error(
       `entry is ${text.length} characters, over the ${MAX_CHARS} limit`,
     );
   }
+}
+
+function checkSingleLine(text: string): void {
   if (text.includes("\n")) {
     throw new Error("entry must be a single line");
   }
 }
 
+function validateLine(text: string): void {
+  checkNotEmpty(text);
+  checkWithinLimit(text);
+  checkSingleLine(text);
+}
+
 function main(): void {
-  validate(line);
+  const line = buildLine();
+  validateLine(line);
   mkdirSync("/output", { recursive: true });
   // No trailing newline: the file holds exactly the line, nothing else.
   writeFileSync(OUTPUT_PATH, line, "utf8");
