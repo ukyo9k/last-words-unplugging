@@ -19,8 +19,11 @@ const wish = "I just wish one of them had been 'stay.'";
 // The line is composed from its named parts by buildLine so the
 // composition lives in one place; validateLine then owns every
 // guard that keeps the entry a single valid line.
+// The single space joining the kept words to the wish.
+const JOINER = " ";
+
 function buildLine(): string {
-  return `${kept} ${wish}`;
+  return `${kept}${JOINER}${wish}`;
 }
 
 function checkNotEmpty(text: string): void {
@@ -49,12 +52,18 @@ function validateLine(text: string): void {
   checkSingleLine(text);
 }
 
+// writeEntry owns the output path and the no-trailing-newline
+// guarantee: it creates the output directory and writes exactly
+// the line it is given, nothing appended.
+function writeEntry(text: string): void {
+  mkdirSync("/output", { recursive: true });
+  writeFileSync(OUTPUT_PATH, text, "utf8");
+}
+
 function main(): void {
   const line = buildLine();
   validateLine(line);
-  mkdirSync("/output", { recursive: true });
-  // No trailing newline: the file holds exactly the line, nothing else.
-  writeFileSync(OUTPUT_PATH, line, "utf8");
+  writeEntry(line);
   console.log(`Wrote ${line.length} characters to ${OUTPUT_PATH}`);
 }
 
